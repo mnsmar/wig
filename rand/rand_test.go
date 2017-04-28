@@ -7,44 +7,83 @@ import (
 	"testing"
 )
 
-var wigs = []struct {
-	name string
-	wig  []int
-	sum  int
+var permTests = []struct {
+	name      string
+	wig, rwig []int
+	sum       int
+	fun       func(int) bool
 }{
 	{
 		name: "simple wig",
 		wig:  []int{10, 5, 0, 0, 0, 0},
 		sum:  15,
+		rwig: []int{3, 3, 2, 1, 2, 4},
+	},
+	{
+		name: "restrict to [0,1]",
+		wig:  []int{10, 5, 0, 0, 0, 0},
+		sum:  15,
+		fun: func(i int) bool {
+			if i > 1 {
+				return false
+			}
+			return true
+		},
+		rwig: []int{7, 8, 0, 0, 0, 0},
 	},
 }
 
 func TestPerm(t *testing.T) {
-	for _, tt := range wigs {
+	for _, tt := range permTests {
+		rand.Seed(1)
 		w := make([]int, len(tt.wig))
 		copy(w, tt.wig)
-		Perm(w)
-		sum := 0
-		for _, v := range w {
-			sum += v
+		Perm(w, tt.fun)
+		if sum(w) != tt.sum {
+			t.Errorf("%s: wrong sum: expected %d, actual %d", tt.name, tt.sum, sum(w))
 		}
-		if sum != tt.sum {
-			t.Errorf("%s: wrong sum: expected %d, actual %d", tt.name, tt.sum, sum)
+		if !reflect.DeepEqual(w, tt.rwig) {
+			t.Errorf("%s: wrong random: expected %v, actual %v", tt.name, tt.rwig, w)
 		}
 	}
 }
 
+var permPosTests = []struct {
+	name      string
+	wig, rwig []int
+	sum       int
+	fun       func(int) bool
+}{
+	{
+		name: "simple wig",
+		wig:  []int{10, 5, 0, 0, 0, 0},
+		sum:  15,
+		rwig: []int{10, 0, 0, 5, 0, 0},
+	},
+	{
+		name: "restrict to [0,1]",
+		wig:  []int{10, 5, 0, 0, 0, 0},
+		sum:  15,
+		fun: func(i int) bool {
+			if i > 1 {
+				return false
+			}
+			return true
+		},
+		rwig: []int{5, 10, 0, 0, 0, 0},
+	},
+}
+
 func TestPermPos(t *testing.T) {
-	for _, tt := range wigs {
+	for _, tt := range permPosTests {
 		w := make([]int, len(tt.wig))
 		copy(w, tt.wig)
-		PermPos(w)
-		sum := 0
-		for _, v := range w {
-			sum += v
+		PermPos(w, tt.fun)
+		if sum(w) != tt.sum {
+			t.Errorf("%s: wrong sum: expected %d, actual %d", tt.name, tt.sum, sum(w))
 		}
-		if sum != tt.sum {
-			t.Errorf("%s: wrong sum: expected %d, actual %d", tt.name, tt.sum, sum)
+		if !reflect.DeepEqual(w, tt.rwig) {
+			t.Errorf("%s: wrong random: expected %v, actual %v", tt.name, tt.rwig, w)
 		}
 	}
 }
@@ -124,23 +163,15 @@ func TestPermKeepByte(t *testing.T) {
 	}
 }
 
-func content(wig []int, s []byte) map[string]int {
-	content := make(map[string]int)
-	for i, v := range wig {
-		content[string(s[i])] += v
-	}
-	return content
-}
-
 func ExamplePerm() {
 	m := []int{10, 1, 2, 3}
-	Perm(m)
+	Perm(m, nil)
 	fmt.Println(m)
 }
 
 func ExamplePermPos() {
 	m := []int{10, 1, 2, 3}
-	PermPos(m)
+	PermPos(m, nil)
 	for _, v := range m {
 		fmt.Println(v)
 	}
@@ -156,4 +187,20 @@ func ExamplePermKeepByte() {
 	b := []byte("ACCCGT")
 	PermKeepByte(m, b, 0, 0, func(i int) bool { return true })
 	fmt.Println(m)
+}
+
+func sum(wig []int) int {
+	sum := 0
+	for _, v := range wig {
+		sum += v
+	}
+	return sum
+}
+
+func content(wig []int, s []byte) map[string]int {
+	content := make(map[string]int)
+	for i, v := range wig {
+		content[string(s[i])] += v
+	}
+	return content
 }

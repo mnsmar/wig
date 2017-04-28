@@ -1,4 +1,4 @@
-// Package rand provides types and functions to randomize wigs.
+// Package rand provides functions to randomize wigs.
 package rand
 
 import (
@@ -7,22 +7,44 @@ import (
 )
 
 // Perm assigns each unit of value at a wig position to a random wig position.
-func Perm(wig []int) {
+// Positions for which f returns false are neither randomized nor modified.
+func Perm(wig []int, f func(i int) bool) {
 	wigL := len(wig)
 	rwig := make([]int, wigL)
-	for _, v := range wig {
-		for i := 0; i < v; i++ {
-			j := rand.Intn(wigL)
-			rwig[j]++
+	availUnits := 0
+	var valids []int
+
+	for pos, v := range wig {
+		if f != nil && f(pos) == false {
+			continue
 		}
+		valids = append(valids, pos)
+		availUnits += v
 	}
-	copy(wig, rwig)
+
+	for i := 0; i < availUnits; i++ {
+		j := rand.Intn(len(valids))
+		rwig[valids[j]]++
+	}
+
+	for i := range wig {
+		if f != nil && f(i) == false {
+			continue
+		}
+		wig[i] = rwig[i]
+	}
 }
 
 // PermPos assigns all units at a wig position to a random wig position.
-func PermPos(wig []int) {
+// Positions for which f returns false are neither randomized nor modified.
+func PermPos(wig []int, f func(i int) bool) {
+	var valids []int
 	for i := 0; i < len(wig); i++ {
-		j := rand.Intn(i + 1)
+		if f != nil && f(i) == false {
+			continue
+		}
+		valids = append(valids, i)
+		j := rand.Intn(len(valids))
 		wig[i], wig[j] = wig[j], wig[i]
 	}
 }
