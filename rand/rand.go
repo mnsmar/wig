@@ -63,7 +63,7 @@ func PermKeepByte(wig []int, s []byte, from, to int, f func(i int) bool) {
 		if units == 0 {
 			continue
 		}
-		if f(pos) == false {
+		if f != nil && f(pos) == false {
 			continue
 		}
 		for j := from; j <= to; j++ {
@@ -93,7 +93,7 @@ func PermKeepByte(wig []int, s []byte, from, to int, f func(i int) bool) {
 		}
 		randMatch := matches[rand.Intn(len(matches))]
 		pos := randMatch[0] - from
-		if f(pos) == false {
+		if f != nil && f(pos) == false {
 			tries++
 			continue
 		}
@@ -102,7 +102,7 @@ func PermKeepByte(wig []int, s []byte, from, to int, f func(i int) bool) {
 		tries = 0
 	}
 	for i := range wig {
-		if f(i) == false {
+		if f != nil && f(i) == false {
 			continue
 		}
 		wig[i] = rwig[i]
