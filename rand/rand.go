@@ -67,7 +67,7 @@ func PermKeepByte(wig []int, s []byte, from, to int, f func(i int) bool) {
 			continue
 		}
 		for j := from; j <= to; j++ {
-			if pos+j < 0 || pos+j > wigL {
+			if pos+j < 0 || pos+j >= wigL {
 				continue
 			}
 			b := s[pos+j]
@@ -83,6 +83,10 @@ func PermKeepByte(wig []int, s []byte, from, to int, f func(i int) bool) {
 		pattern := make([]byte, to-from+1)
 		for j := from; j <= to; j++ {
 			contentAtJ := content[j]
+			if len(contentAtJ) == 0 {
+				pattern[j-from] = 46 // dot
+				continue
+			}
 			pattern[j-from] = contentAtJ[rand.Intn(len(contentAtJ))]
 		}
 		re := regexp.MustCompile(string(pattern))
