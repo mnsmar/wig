@@ -6,8 +6,9 @@ import (
 	"regexp"
 )
 
-// Perm assigns each unit of value at a wig position to a random wig position.
-// Positions for which f returns false are neither randomized nor modified.
+// Perm assigns each unit of value at a wig position to a random wig position,
+// independently. Positions for which f returns false are neither randomized
+// nor modified.
 func Perm(wig []int, f func(i int) bool) {
 	wigL := len(wig)
 	rwig := make([]int, wigL)
@@ -35,8 +36,9 @@ func Perm(wig []int, f func(i int) bool) {
 	}
 }
 
-// PermPos assigns all units at a wig position to a random wig position.
-// Positions for which f returns false are neither randomized nor modified.
+// PermPos assigns all units of value at a wig position to a random wig
+// position, jointly.  Positions for which f returns false are neither
+// randomized nor modified.
 func PermPos(wig []int, f func(i int) bool) {
 	var valids []int
 	for i := 0; i < len(wig); i++ {
